@@ -51,7 +51,6 @@ def issue_request():
         api_key = f.read().rstrip()
     with open(coords_key_path, 'r') as f:
         coords = f.read().rstrip()
-        print(coords)
 
     request_base = 'https://api.darksky.net/forecast/' + api_key + '/' + coords
     request_query = "?exclude=minutely,hourly,daily,alerts,flags"
