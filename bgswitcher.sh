@@ -17,7 +17,7 @@ function checkwm {
 
 function reloadwm {
   # Reloads the window manager
-  wm=checkwm
+  wm=$(checkwm)
   if [[ $wm == sway ]] ; then
     swaymsg reload
   fi
@@ -75,7 +75,10 @@ function setbg {
 	if [[ ! -z $1 ]] ; then
 		echo '#!/bin/sh' > $FEHFILE
 		echo feh --bg-fill \'$1\' >> $FEHFILE
-		$HOME/.config/i3/makelockbg.sh > /dev/null &
+    wm=$(checkwm)
+    if [[ $wm == sway ]] ; then
+		  $HOME/.config/sway/sway_makelockbg.sh > /dev/null &
+    fi
 	fi
     # Call wal to set the new theme colors.
     wal -e -i $1 -a 80 -q
