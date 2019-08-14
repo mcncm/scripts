@@ -69,6 +69,11 @@ function randbg {
 	echo "$(listbg)" | shuf -n 1
 }
 
+function newbg {
+  # Get a new background using a web api
+  echo $(python newbg.py $BGDIR)
+}
+
 function setbg {
 	# Set the background to argument 1, liberally
 
@@ -111,6 +116,7 @@ function main {
 	case $1 in
 		"")     info                      ;;
 		rand)   setbg $(randbg)           ;;
+    new)    setbg $(newbg)            ;;
 		bl)     blacklist $(checkname $2) ;;
 		wl)     whitelist $(checkname $2) ;;
 		*)      setbg $(checkname $1)     ;;

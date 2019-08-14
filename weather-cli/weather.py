@@ -12,8 +12,7 @@ api_key_file = "api-key.txt"
 script_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 class Report:
-
-
+    
     def __init__(self, api_response):
         self.api_response = api_response
         self.report = ''

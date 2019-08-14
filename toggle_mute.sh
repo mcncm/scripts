@@ -13,4 +13,5 @@ else
   amixer set Master on
   amixer set $MONITOR_SPEAKER on
   amixer set Speaker on
+  amixer set Headphone on
 fi

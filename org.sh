@@ -16,9 +16,13 @@ function commit-dir {
   (cd $ORGDIR && git add -A && git commit -m "$1")
 }
 
+function org_diff {
+  (cd $ORGDIR && git diff)
+}
+
 function default_commit {
   # Commit with a default message: just a timestamp.
-  commit-dir "$(date +%Y-%m-%d\ %H:%M:%S)"
+  commit_dir "$(date +%Y-%m-%d\ %H:%M:%S)"
 }
 
 function clean_old_commits {
@@ -32,6 +36,7 @@ function main {
   fi
   case $1 in
     commit)         default_commit      ;;
+    diff)           org_diff            ;;
     clean)          clean_old_commits   ;;
   esac
 }
