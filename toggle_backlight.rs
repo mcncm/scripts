@@ -5,6 +5,11 @@ Author: mcncm, 2019
 I use this to provide a hardware light indicator of when my environment is
 in a non-defualt mode, e.g. when my window manager is in a "resize" mode.
 
+Usage:
+$ ./toggle_backlight 0      off
+$ ./toggle_backlight 1      low
+$ ./toggle_backlight 2      high
+
 Needs root privileges to write to the kernel file containing this setting.
 e.g. compile and chown to root:
 $ rustc toggle_backlight.rs
