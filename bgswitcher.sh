@@ -71,7 +71,7 @@ function randbg {
 
 function newbg {
   # Get a new background using a web api
-  echo $(python newbg.py $BGDIR)
+  echo $(python $(dirname "$0")/newbg.py $BGDIR)
 }
 
 function setbg {
@@ -89,6 +89,9 @@ function setbg {
     wal -e -i $1 -a 80 -q
     # Now reload the window manager, setting the background in the process.
     reloadwm
+    # and force-refresh the emacs config. TODO: this command is /too/ general
+    # and could be made to take /much/ less time by not reloaing the whole config
+    nohup emacsclient --eval "(dotspacemacs/sync-configuration-layers)" > /dev/null 2>&1 &
 }
 
 function blacklist {
