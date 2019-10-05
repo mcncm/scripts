@@ -71,12 +71,13 @@ function randbg {
 
 function newbg {
   # Get a new background using a web api
-  echo $(python $(dirname "$0")/newbg.py $BGDIR)
+  SCRIPT_DIR=$0
+  shift 1
+  echo $(python $(dirname "$SCRIPT_DIR")/newbg.py $BGDIR "$@")
 }
 
 function setbg {
 	# Set the background to argument 1, liberally
-
 	if [[ ! -z $1 ]] ; then
 		echo '#!/bin/sh' > $FEHFILE
 		echo feh --bg-fill \'$1\' >> $FEHFILE
@@ -85,13 +86,13 @@ function setbg {
 		  $HOME/.config/sway/sway_makelockbg.sh > /dev/null &
     fi
 	fi
-    # Call wal to set the new theme colors.
-    wal -e -i $1 -a 80 -q
-    # Now reload the window manager, setting the background in the process.
-    reloadwm
-    # and force-refresh the emacs config. TODO: this command is /too/ general
-    # and could be made to take /much/ less time by not reloaing the whole config
-    nohup emacsclient --eval "(dotspacemacs/sync-configuration-layers)" > /dev/null 2>&1 &
+  # Call wal to set the new theme colors.
+  wal -e -i $1 -a 80 -q
+  # Now reload the window manager, setting the background in the process.
+  reloadwm
+  # and force-refresh the emacs config. TODO: this command is /too/ general
+  # and could be made to take /much/ less time by not reloaing the whole config
+  nohup emacsclient --eval "(dotspacemacs/sync-configuration-layers)" > /dev/null 2>&1 &
 }
 
 function blacklist {
@@ -117,13 +118,13 @@ function info {
 
 function main {
 	case $1 in
-		"")     info                      ;;
-		rand)   setbg $(randbg)           ;;
-    new)    setbg $(newbg)            ;;
-		bl)     blacklist $(checkname $2) ;;
-		wl)     whitelist $(checkname $2) ;;
-		*)      setbg $(checkname $1)     ;;
+        "")     info                        ;;
+        rand)   setbg $(randbg)             ;;
+        new)    setbg $(newbg $@)           ;;
+        bl)     blacklist $(checkname $2)   ;;
+        wl)     whitelist $(checkname $2)   ;;
+        *)      setbg $(checkname $1)       ;;
 	esac
 }
 
-main $1 $2
+main $@

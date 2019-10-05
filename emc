@@ -1,0 +1,5 @@
+#! /bin/bash
+if [[ -z $(pgrep emacs) ]] ; then
+  emacs --daemon
+fi
+emacsclient -create-frame

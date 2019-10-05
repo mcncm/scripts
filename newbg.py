@@ -3,6 +3,7 @@
 
 import os
 import sys
+import argparse
 import json
 import requests
 import shutil
@@ -10,9 +11,15 @@ import tkinter as tk
 
 import filemapping
 
-API_NAME = 'unsplash'
+API_NAME = 'unsplash'  # other possibilities: imgur, flickr,...
 BG_CACHE_SIZE = 5
 LOAD_BAR_LEN = 36
+
+parser = argparse.ArgumentParser()
+parser.add_argument('bg_dir', nargs=1)
+parser.add_argument('-s', '--search', type=str, default=None)  # not quite there yet
+parser.add_argument('-f', '--featured', action='store_true',
+    help='only use featured images from web api')
 
 def issue_request(queries):
     api_url = 'https://api.unsplash.com/photos/random'
@@ -43,28 +50,42 @@ def download_with_bar(url, path):
         print(f'Got response {r.status_code} from {API_NAME}', file=sys.err)
     print(img_path)
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('No wallpaper directory given')
-    bg_dir = sys.argv[1]  # wallpapers
 
+def display_dimensions():
     tk_root = tk.Tk()
     width = tk_root.winfo_screenwidth()
     height = tk_root.winfo_screenheight()
     tk_root.destroy()
 
-    secrets = filemapping.FileMapping('secrets.txt')
+    return (width, height)
+
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    try:
+        bg_dir = args.bg_dir[0]
+    except:
+        print('No wallpaper directory given')
+
+    width, height = display_dimensions()
+
+    script_dir = os.path.dirname(sys.argv[0])
+    secrets = filemapping.FileMapping(
+                os.path.join(script_dir, 'secrets.txt'))
 
     queries = {
         'client_id': secrets['UNSPLASH_ACCESS_KEY'],
         'orientation': 'landscape',
     }
 
-    # {
-    #     'w': width,
-    #     'h': height,
-    #     'fit': 'crop',
-    # }
+    # only return featured images
+    if args.featured:
+        queries['featured'] = True
+
+    # include search terms
+    if args.search:
+        queries['query'] = args.search
+
 
     img_data = issue_request(queries)
 

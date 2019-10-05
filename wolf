@@ -1,0 +1,28 @@
+#! /bin/python
+"""
+Author: mcncm, 2019
+"""
+
+import os
+import sys
+import requests
+
+from filemapping import FileMapping
+
+SECRETS_FILE='secrets.txt'
+API_KEYNAME='WOLFRAM_APP_ID'
+
+def issue_request(appid, query):
+    api_url = "http://api.wolframalpha.com/v1/result"
+    params={ "appid": appid, "i": query }
+    r = requests.get(api_url, params)
+    return r
+
+def get_appid(secrets_filename):
+    script_dir = os.path.dirname(sys.argv[0])
+    secrets = FileMapping(os.path.join(script_dir, secrets_filename))
+    return secrets[API_KEYNAME]
+
+if __name__ == '__main__':
+    res = issue_request(get_appid(SECRETS_FILE), ' '.join(sys.argv[1:]))
+    print(res.content.decode('utf-8'))
