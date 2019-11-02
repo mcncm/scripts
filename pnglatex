@@ -1,0 +1,23 @@
+#! /bin/bash
+# Generates a png from a file containing just a latex equation expression
+# author: mcncm 2019 
+
+ENTROPY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 10)
+FILENAME="${1##*/}"
+FILENAME_NO_EXT="${FILENAME%.*}"
+FILENAME_MANGLED="$FILENAME_NO_EXT"_"$ENTROPY"
+
+cat > $FILENAME_MANGLED.tex << EOM
+\\documentclass[preview]{standalone}
+\\usepackage{amsmath}
+\\begin{document}
+\\begin{equation*}
+$(cat $1)
+\\end{equation*}
+\\end{document}
+EOM
+
+pdflatex $FILENAME_MANGLED.tex > /dev/null 2>&1
+convert -quiet -density 600 $FILENAME_MANGLED.pdf -quality 96 -depth 8 -flatten -background white -alpha off -fuzz 1% -trim $FILENAME_NO_EXT.png
+rm $FILENAME_MANGLED.*
+

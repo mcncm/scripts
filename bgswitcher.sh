@@ -92,12 +92,12 @@ function setbg {
   reloadwm
   # and force-refresh the emacs config. TODO: this command is /too/ general
   # and could be made to take /much/ less time by not reloaing the whole config
-  nohup emacsclient --eval "(dotspacemacs/sync-configuration-layers)" > /dev/null 2>&1 &
+  nohup emacsclient --eval "(reload-custom-theme)" > /dev/null 2>&1 &
 }
 
 function blacklist {
 	# Add a wallpaper to the blacklist file: it will not be selected by rand.
-	
+
 	mv $1 $BLDIR
 }
 

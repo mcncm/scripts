@@ -7,7 +7,6 @@ Methods:
 """
 
 import sys
-
 import dbus
 
 bus_name = "org.mpris.MediaPlayer2.spotify"

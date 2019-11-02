@@ -1,5 +1,6 @@
 #! /bin/bash
 if [[ -z $(pgrep emacs) ]] ; then
   emacs --daemon
+  sleep 2
 fi
 emacsclient -create-frame
