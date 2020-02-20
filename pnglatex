@@ -10,6 +10,7 @@ FILENAME_MANGLED="$FILENAME_NO_EXT"_"$ENTROPY"
 cat > $FILENAME_MANGLED.tex << EOM
 \\documentclass[preview]{standalone}
 \\usepackage{amsmath}
+\\usepackage{amssymb}
 \\begin{document}
 \\begin{equation*}
 $(cat $1)
@@ -17,7 +18,14 @@ $(cat $1)
 \\end{document}
 EOM
 
+echo Made LaTeX document...
+
 pdflatex $FILENAME_MANGLED.tex > /dev/null 2>&1
+echo Made pdf document...
+
 convert -quiet -density 600 $FILENAME_MANGLED.pdf -quality 96 -depth 8 -flatten -background white -alpha off -fuzz 1% -trim $FILENAME_NO_EXT.png
+echo Made png...
+
 rm $FILENAME_MANGLED.*
+echo Cleaned up.
 

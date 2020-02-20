@@ -1,10 +1,10 @@
 # mcncm 2019
 
-ORGDIR=$HOME/text/org
+ORGDIR=$HOME/docs/org
 DEFAULT=todo.org
 
 function open_org {
-  nohup emacs $1 &> /dev/null & 
+  nohup emacsclient -create-frame $1 &> /dev/null &
 }
 
 function open_default {
