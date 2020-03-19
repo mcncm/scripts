@@ -90,9 +90,17 @@ function setbg {
   wal -e -i $1 -a 80 -q
   # Now reload the window manager, setting the background in the process.
   reloadwm
+
+  # now update themes in some other applications.
+
+  # spotify:
+  python ~/.scripts/spicetify_colors.py
+  spicetify update
+
   # and force-refresh the emacs config. TODO: this command is /too/ general
   # and could be made to take /much/ less time by not reloaing the whole config
   nohup emacsclient --eval "(reload-custom-theme)" > /dev/null 2>&1 &
+
 }
 
 function blacklist {

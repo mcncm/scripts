@@ -1,0 +1,3 @@
+[submodule "inkscape-figures"]
+	path = inkscape-figures
+	url = https://github.com/gillescastel/inkscape-figures
