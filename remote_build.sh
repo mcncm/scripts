@@ -20,10 +20,43 @@
 #   If the script is interrupted, the connection will remain open.
 # * mux_master_process_new_session: tcgetattr: Inappropriate ioctl for device
 # * exit gracefully on "any" kind of error and close the master connection?
+# * specialized checking behavior for nixos should be handled more elegantly
+# * two-step rsync copying of binary is a little awkward if the build server
+#   is also the deploy target!
 #
 #############################################################################
 
-export $(grep BUILD_SERVER $HOME/.scripts/secrets.txt)
+# Parse options
+# -b: build server (argument, name)
+# -t: target (argument, name)
+# -d: deploy (option)
+while getopts ":b:t:d" opt; do
+  case ${opt} in
+    b )
+      export BUILD_SERVER=$OPTARG
+      ;;
+    t )
+      export TARGET=$OPTARG
+      ;;
+    d )
+      DEPLOY=1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+# Set default values if not overridden by options
+if [ -z "$BUILD_SERVER" ] ; then
+  export $(grep BUILD_SERVER $HOME/.scripts/secrets.txt)
+  echo "Setting BUILD_SERVER to default: $BUILD_SERVER"
+fi
+if [ -z "$TARGET" ] ; then
+  export TARGET=pinephone-usb
+  echo "Setting TARGET to default: $TARGET"
+fi
 
 LOCAL_PINE_DIR=~/proj/pinephone
 LOCAL_PROJ_DIR=$(pwd)
@@ -51,21 +84,47 @@ ssh -M -f -N $BUILD_SERVER
 # Clear existing remote project directory
 ssh -T $BUILD_SERVER << EOSSH
 rm -rf $REMOTE_PROJ_DIR
+mkdir -p $REMOTE_PROJ_DIR
 EOSSH
 
 # Upload the new copy
-# scp -r $LOCAL_PROJ_DIR $BUILD_SERVER:$REMOTE_PINE_DIR
 rsync -va -zz --rsh=ssh --exclude='.git' --exclude='*.bmp' $LOCAL_PROJ_DIR $BUILD_SERVER:$REMOTE_PINE_DIR
+
+# What make command to use? Depends on whether source == target or not.
+if [ $BUILD_SERVER == $TARGET ] ; then
+  MAKE_TARGET=native
+else
+  MAKE_TARKET=cross
+fi
 
 # Build it! Must force pseudoterminal allocation for nix-shell to work (I
 # think?).
 ssh -tt $BUILD_SERVER << EOSSH
+
 cd $REMOTE_PINE_DIR
-nix-shell shell.nix
+
+RNAME=\$(cat /etc/*-release | grep "^NAME")
+if [[ \${RNAME^^} == *NIXOS* ]] ; then
+  IS_NIXOS=1
+fi
+
+if [ $IS_NIXOS ] ; then
+  nix-shell shell.nix
+fi
+
 cd $REMOTE_PROJ_DIR
-make release
-exit        # exit nix-shell
-logout      # logout of build server
+make $MAKE_TARGET
+
+if [ $IS_NIXOS ] ; then
+  exit        # exit nix-shell
+fi
+
+if [ ! -z \$(which logout) ] ; then
+  logout      # logout of build server
+else
+  exit
+fi
+
 EOSSH
 
 # Copy the binary back to local
@@ -75,6 +134,6 @@ scp -r $BUILD_SERVER:$REMOTE_BUILD_DIR/* $LOCAL_BUILD_DIR
 ssh -O exit $BUILD_SERVER
 
 # Finally, put it on the device if you want to.
-if [[ $1 == deploy ]] ; then
-  rsync -va -zz -rsh=ssh $LOCAL_BUILD_DIR pinephone:$PINPHONE_BIN_DIR
+if [ $DEPLOY ] ; then
+  rsync -va -zz -rsh=ssh $LOCAL_BUILD_DIR/ $TARGET:$PINEPHONE_BIN_DIR
 fi

@@ -2,5 +2,6 @@
 if [[ -z $(pgrep emacs) ]] ; then
   emacs --daemon
   sleep 2
+  emacsclient --create-frame &
 fi
-emacsclient -create-frame
+emacsclient --create-frame &

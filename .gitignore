@@ -1,4 +1,5 @@
 darksky.sh
-secrets*
+*secret*
 *key*
 *coord*
+lenfer
