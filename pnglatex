@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 # Generates a png from a file containing just a latex equation expression
 # author: mcncm 2019 
 
@@ -7,22 +7,37 @@ FILENAME="${1##*/}"
 FILENAME_NO_EXT="${FILENAME%.*}"
 FILENAME_MANGLED="$FILENAME_NO_EXT"_"$ENTROPY"
 
+if [[ $2 == "--eqn" ]] ; then
+    EQN_START="\\begin{align*}"
+else
+    EQN_START=""
+fi
+
+if [[ $2 == "--eqn" ]] ; then
+    EQN_END="\\end{align*}"
+else
+    EQN_END=""
+fi
+
 cat > $FILENAME_MANGLED.tex << EOM
 \\documentclass[preview]{standalone}
 \\usepackage{amsmath}
 \\usepackage{amssymb}
+\\usepackage{bussproofs}  % sequent calculus
+\\usepackage{physics}     % kets, etc.
+\\usepackage{qcircuit}
 \\usepackage{xcolor}
 \\begin{document}
 \\nopagecolor
-\\begin{align*}
+$EQN_START
 $(cat $1)
-\\end{align*}
+$EQN_END
 \\end{document}
 EOM
 
 echo Made LaTeX document...
 
-pdflatex $FILENAME_MANGLED.tex > /dev/null 2>&1
+pdflatex $FILENAME_MANGLED.tex # > /dev/null 2>&1
 echo Made pdf document...
 
 convert -quiet -density 800 $FILENAME_MANGLED.pdf -quality 100 -depth 8 -flatten -transparent white -fuzz 1% -trim $FILENAME_NO_EXT.png

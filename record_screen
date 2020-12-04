@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+PROG=wf-recorder
+VID_DIR=~/video/rec
+
+start_record () {
+    $PROG -f $VID_DIR/$(date '+%Y-%m-%d-%H:%M:%S').gif -c gif
+    toggle_backlight 2
+}
+
+stop_record () {
+    # Send SIGINT to the returned process
+    kill -2 $1
+    toggle_backlight 0
+}
+
+PID=$(pgrep $PROG)
+if [[ -z $PID ]] ; then
+    start_record
+else
+    stop_record $PID
+fi

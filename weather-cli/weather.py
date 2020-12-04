@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 
 # mcncm 2019
 

@@ -1,4 +1,4 @@
-#! /bin/python
+#! /usr/bin/env python
 """
 Author: mcncm, 2019
 
@@ -30,7 +30,18 @@ def get_metadata():
     metadata = spotify_dbus_call("Get", player_interface,
             "Metadata", dbus_interface=properties_interface)
 
-    return {key.split(':')[-1]: value for key, value in metadata.items()}
+    def extract(qual_val):
+        """turns a qualified value into a bare value:
+        spotify:track:4R7Xd4Voa8lgrslFMzo0rZ
+        into
+        4R7Xd4Voa8lgrslFMzo0rZ
+        """
+        if hasattr(qual_val, 'split'):
+            return qual_val.split(':')[-1]
+        else:
+            return qual_val
+
+    return {extract(key): extract(value) for key, value in metadata.items()}
 
 if __name__ == '__main__':
     if sys.argv[1] in ["Play", "Pause", "PlayPause", "Next", "Previous"]:

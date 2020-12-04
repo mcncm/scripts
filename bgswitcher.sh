@@ -97,6 +97,11 @@ function setbg {
   python ~/.scripts/spicetify_colors.py
   spicetify update
 
+  # note: mako and zathura colors are set in the sway config
+
+  # mako
+  bash ~/.config/mako/genconfig.sh > ~/.config/mako/config
+
   # and force-refresh the emacs config. TODO: this command is /too/ general
   # and could be made to take /much/ less time by not reloaing the whole config
   nohup emacsclient --eval "(reload-custom-theme)" > /dev/null 2>&1 &

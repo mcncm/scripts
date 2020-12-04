@@ -1,7 +1,14 @@
-#! /bin/bash
+#! /usr/bin/env bash
+
+launch () {
+    nohup emacsclient --create-frame "$@" > /dev/null &
+}
+
 if [[ -z $(pgrep emacs) ]] ; then
   emacs --daemon
   sleep 2
-  emacsclient --create-frame &
+  launch "$@"
+  exit
 fi
-emacsclient --create-frame &
+
+launch "$@"

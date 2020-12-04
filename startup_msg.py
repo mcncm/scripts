@@ -9,9 +9,11 @@ from typing import List, Optional, Callable
 
 from termcolor import cprint
 
-TODO_FILES = [os.path.join(os.path.expanduser('~'), 'docs', 'org', 'personal.org')]
+TODO_FILES = [
+    os.path.join(os.environ['ORG_DIR'], 'agenda', 'personal.org')
+]
 
-TODO_HEADLINE_PATTERN = re.compile(r"\s*\**\s*TODO")
+TODO_HEADLINE_PATTERN = re.compile(r'\s*\**\s*TODO')
 
 
 def print_item(title: str, content: str) -> str:
@@ -23,6 +25,21 @@ def print_item(title: str, content: str) -> str:
 ########################################
 # Listing TODOs from tracked org files #
 ########################################
+
+
+def _guess_agenda_files() -> List[str]:
+    """Attempts to figure out agenda files from emacs config
+    """
+    try:
+        emacs_config = os.path.join(os.path.expanduser('~'), '.spacemacs')
+        with open(emacs_config, 'r') as f:
+            agenda_line = next(line for line in f.readlines()
+                               if 'org-agenda-files' in line)
+        agenda_files = re.findall(r'"(.*?)"', agenda_line)
+        return map(os.path.expanduser, agenda_files)
+
+    except StopIteration:
+        return TODO_FILES
 
 
 def _is_todo_headline(line: str) -> bool:
@@ -49,7 +66,8 @@ def _all_todos() -> List[str]:
     """Get all the newline-terminated todo headlines from every file in the
     searched files.
     """
-    return [todo for fn in TODO_FILES for todo in _file_todos(fn)]
+    agenda_files = _guess_agenda_files()
+    return [todo for fn in agenda_files for todo in _file_todos(fn)]
 
 
 def get_random_todos(samples: int) -> List[str]:
@@ -68,4 +86,7 @@ if __name__ == '__main__':
     }
 
     for title, content in to_print.items():
-        print_item(title, content)
+        try:
+            print_item(title, content)
+        except Exception:
+            print("Failed to produce item '{}'.\n".format(title))

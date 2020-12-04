@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+$SCROT_DIR=~/imag/screenshots
+
+if [ $# -eq 0 ]; then
+  echo "Error: no argument supplied."
+  exit 1
+fi
+
+mv $SCROT_DIR/$(ls $SCROT_DIR | sort -nr | head -n 1) $1
